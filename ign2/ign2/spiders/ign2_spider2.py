@@ -73,7 +73,7 @@ class IGNSpider2(scrapy.Spider):
         # Para obtener los valores de la tabla del div "gameInfo-list"
         megalist = []
         all_divs = response.css('div.gameInfo div.gameInfo-list')
-        for column in all_divs:  # divs0
+        for column in all_divs:
             divs = column.css('div')
             for div in divs[1::]:
                 first = True
