@@ -21,8 +21,8 @@ class IGNItem(scrapy.Item):
     rating_content = scrapy.Field()
 
 
-class IGNSpider2(scrapy.Spider):
-    name = "ign2_spider2"
+class IGNSpider(scrapy.Spider):
+    name = "gameCrawler"
     start_urls = [
         'http://www.ign.com/games/civilization-beyond-earth/pc-20016115',
         'http://www.ign.com/games/total-war-battles-shogun/pc-142564',
