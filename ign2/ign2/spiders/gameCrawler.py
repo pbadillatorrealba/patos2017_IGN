@@ -1,4 +1,6 @@
 import scrapy
+import os
+
 
 
 class IGNItem(scrapy.Item):
@@ -23,14 +25,23 @@ class IGNItem(scrapy.Item):
 
 class IGNSpider(scrapy.Spider):
     name = "gameCrawler"
-    start_urls = [
-        'http://www.ign.com/games/civilization-beyond-earth/pc-20016115',
-        'http://www.ign.com/games/total-war-battles-shogun/pc-142564',
-        'http://www.ign.com/games/funky-smugglers/iphone-145106'
-    ]
+    def __init__(self, part = None, *args, **kwargs):
+        super(IGNSpider, self).__init__(*args, **kwargs)
+        originalPath = os.getcwd()
+        os.chdir("../")
+        os.chdir("../")
+        os.chdir("../")
+        path = os.getcwd()
+        path += "/urlExtractor/chunks/parte%s.txt" % part
+        os.chdir(originalPath)
+        print "PATH: ",path
+        with open(path, "r") as f:
+            list = [url.strip() for url in f.readlines()]
+            print list
+        self.start_urls = list
 
     def parse(self, response):
-        print("Existing settings: %s" % self.settings.attributes.keys())
+        #print("Existing settings: %s" % self.settings.attributes.keys())
 
         item = IGNItem()
 
