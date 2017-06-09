@@ -150,13 +150,13 @@ class IGNSpider(scrapy.Spider):
             elif var == 'MSRP':
                 item['price'] = value
 
-            elif var == 'Genre':
+            elif var == 'Genre' or var == 'Genres':
                 item['genres'] = value
 
-            elif var == 'Publisher':
+            elif var == 'Publisher' or var == 'Publishers':
                 item['publisher'] = value
 
-            elif var == 'Developer':
+            elif var == 'Developer' or var == 'Developers':
                 item['developers'] = value
 
             else:
