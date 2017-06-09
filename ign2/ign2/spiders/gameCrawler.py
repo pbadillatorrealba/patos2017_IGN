@@ -35,8 +35,14 @@ class IGNItem(scrapy.Item):
     # Juegos relacionados
     related_games = scrapy.Field()
 
+
 class IGNSpider(scrapy.Spider):
     name = "gameCrawler"
+
+    def start_requests(self):
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0'}
+        for url in self.start_urls:
+            yield scrapy.Request(url, headers=headers)
 
     def __init__(self, part=None, *args, **kwargs):
         """Función de inicio del crawler.
@@ -61,7 +67,6 @@ class IGNSpider(scrapy.Spider):
         os.chdir(original_path)
         with open(path, "r") as f:
             self.start_urls = [url.strip() for url in f.readlines()]
-
 
     def parse(self, response):
         """Toma el objeto response y extrae sus características.
@@ -106,13 +111,17 @@ class IGNSpider(scrapy.Spider):
 
         # Scores: ign_score, ign_score_phrase, community_score,
         # community_score_phrase
-        item['ign_score'] = response.css('div.ignRating div.ratingValue::text').extract_first().replace('\n', '').strip()
+        item['ign_score'] = response.css('div.ignRating div.ratingValue::text').extract_first().replace('\n',
+                                                                                                        '').strip()
 
-        item['ign_score_phrase'] = response.css('div.ignRating div.ratingText::text').extract_first().replace('\n', '').strip()
+        item['ign_score_phrase'] = response.css('div.ignRating div.ratingText::text').extract_first().replace(
+            '\n', '').strip()
 
-        item['community_score'] = response.css('div.communityRating div.ratingValue::text').extract_first().replace('\n', '').strip()
+        item['community_score'] = response.css('div.communityRating div.ratingValue::text').extract_first().replace(
+            '\n', '').strip()
 
-        item['community_score_phrase'] = response.css('div.communityRating div.ratingText::text').extract_first().replace('\n', '').strip()
+        item['community_score_phrase'] = response.css(
+            'div.communityRating div.ratingText::text').extract_first().replace('\n', '').strip()
 
         # Link del Review.
         item['review_link'] = response.css('div.ignRating a.reviewLink::attr(href)').extract_first().strip()
