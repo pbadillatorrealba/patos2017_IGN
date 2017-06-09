@@ -1,5 +1,5 @@
-import os
 import scrapy
+import os
 
 
 class IGNItem(scrapy.Item):
@@ -9,6 +9,7 @@ class IGNItem(scrapy.Item):
     Por lo mismo, en estos se guardará la información extraida desde las
     páginas de la descripción de los juegos,
     """
+
     # Campos Generales : Titulo, descripción y Plataformas.
     title = scrapy.Field()
     description = scrapy.Field()
@@ -58,6 +59,7 @@ class IGNSpider(scrapy.Spider):
         with open(path, "r") as f:
             self.start_urls = [url.strip() for url in f.readlines()]
 
+
     def parse(self, response):
         """Toma el objeto response y extrae sus características.
 
@@ -88,13 +90,11 @@ class IGNSpider(scrapy.Spider):
                 item['description'] += text.strip().replace(u"\u2019", "'")
                 first = False
             else:  # Parrafo Cualquiera. (Agrega salto de linea).
-                item['description'] += '\n\n' +
-                text.strip().replace(u"\u2019", "'")
+                item['description'] += '\n\n' + text.strip().replace(u"\u2019", "'")
 
         item['platforms'] = ''
         first = True
-        for platform in response.css('div.contentPlatformsText a::text')
-        .extract():
+        for platform in response.css('div.contentPlatformsText a::text').extract():
             if first:  # Primera plataforma.
                 item['platforms'] += platform.strip()
                 first = False
@@ -103,25 +103,16 @@ class IGNSpider(scrapy.Spider):
 
         # Scores: ign_score, ign_score_phrase, community_score,
         # community_score_phrase
-        item['ign_score'] = response.css('div.ignRating div.ratingValue::text')
-        .extract_first().replace('\n', '').strip()
+        item['ign_score'] = response.css('div.ignRating div.ratingValue::text').extract_first().replace('\n', '').strip()
 
-        item['ign_score_phrase'] =
-        response.css('div.ignRating div.ratingText::text')
-        .extract_first().replace('\n', '').strip()
+        item['ign_score_phrase'] = response.css('div.ignRating div.ratingText::text').extract_first().replace('\n', '').strip()
 
-        item['community_score'] =
-        response.css('div.communityRating div.ratingValue::text')
-        .extract_first().replace('\n', '').strip()
+        item['community_score'] = response.css('div.communityRating div.ratingValue::text').extract_first().replace('\n', '').strip()
 
-        item['community_score_phrase'] =
-        response.css('div.communityRating div.ratingText::text')
-        .extract_first().replace('\n', '').strip()
+        item['community_score_phrase'] = response.css('div.communityRating div.ratingText::text').extract_first().replace('\n', '').strip()
 
         # Link del Review.
-        item['review_link'] =
-        response.css(IGNItem'div.ignRating a.reviewLink::attr(href)')
-        .extract_first().strip()
+        item['review_link'] = response.css('div.ignRating a.reviewLink::attr(href)').extract_first().strip()
 
         # Extracción de los valores de la tabla del div "gameInfo-list":
         # release_date, MSRP, Genre, Publisher, Developer, rating_category.
