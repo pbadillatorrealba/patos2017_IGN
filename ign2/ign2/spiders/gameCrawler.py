@@ -2,7 +2,6 @@ import scrapy
 import os
 
 
-
 class IGNItem(scrapy.Item):
     title = scrapy.Field()
     description = scrapy.Field()
@@ -25,24 +24,20 @@ class IGNItem(scrapy.Item):
 
 class IGNSpider(scrapy.Spider):
     name = "gameCrawler"
-    def __init__(self, part = None, *args, **kwargs):
+
+    def __init__(self, part=None, *args, **kwargs):
         super(IGNSpider, self).__init__(*args, **kwargs)
-        originalPath = os.getcwd()
+        original_path = os.getcwd()
         os.chdir("../")
         os.chdir("../")
         os.chdir("../")
         path = os.getcwd()
         path += "/urlExtractor/chunks/parte%s.txt" % part
-        os.chdir(originalPath)
-        print "PATH: ",path
+        os.chdir(original_path)
         with open(path, "r") as f:
-            list = [url.strip() for url in f.readlines()]
-            print list
-        self.start_urls = list
+            self.start_urls = [url.strip() for url in f.readlines()]
 
     def parse(self, response):
-        #print("Existing settings: %s" % self.settings.attributes.keys())
-
         item = IGNItem()
 
         item['title'] = response.css('span.fn::text').extract_first().strip()
