@@ -31,7 +31,7 @@ def chunkanator(data, files):
         print "Creando archivo " + str(cont)
         with open(path + '/parte'+str(cont)+'.txt', 'w') as newFile:
             for link in data[i * k + min(i, m):(i+1) * k + min(i + 1, m)]:
-                newFile.write(link)
+                newFile.write(link+'\n')
         cont += 1
 
 
@@ -43,4 +43,4 @@ if __name__ == '__main__':
         list = csv_reader(dataBase)
 
     print(len(list))
-    chunkanator(list, 9)
+    chunkanator(list, 36)
