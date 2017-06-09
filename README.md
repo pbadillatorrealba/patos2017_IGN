@@ -5,7 +5,7 @@ Proyecto para el ramo Procesamiento Masivo de Datos (Patos).
 
 *'scrapy crawl gameCrawler -a part=**PARTE_A_PARSEAR** -o **NOMBRE_ARCHIVO_OUTPUT**.**TIPO_ARCHIVO**'*
 
-donde:
+Donde:
 1. **PARTE_A_PARSEAR** corresponde a la parte que se quiere parsear
 1. **NOMBRE_ARCHIVO_OUTPUT** corresponde al nombre del archivo al que se quieren escribir los datos
 1. **TIPO_ARCHIVO** corresponde al tipo de archivo, json o csv
