@@ -14,11 +14,12 @@ def csv_reader(file_obj, debug = 0):
     print "Reading file"
     cont = 0
     for row in reader:
-        url = "www.ign.com" + row[3]
-        urlList.append(url)
-        if debug == 1:
-            print "Added: " + url
-        cont += 1
+        if row[3]!="url":
+            url = "http://www.ign.com" + row[3]
+            urlList.append(url)
+            if debug == 1:
+                print "Added: " + url
+            cont += 1
     print "Finished\nReaded " + str(cont) + " Rows"
     return urlList
 
@@ -42,5 +43,4 @@ if __name__ == '__main__':
     with open(dataBase_path, "rb") as dataBase:
         list = csv_reader(dataBase)
 
-    print(len(list))
     chunkanator(list, 36)
