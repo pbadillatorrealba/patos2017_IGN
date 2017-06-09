@@ -32,6 +32,8 @@ class IGNItem(scrapy.Item):
     rating_category = scrapy.Field()
     rating_content = scrapy.Field()
 
+    # Juegos relacionados
+    related_games = scrapy.Field()
 
 class IGNSpider(scrapy.Spider):
     name = "gameCrawler"
@@ -114,6 +116,9 @@ class IGNSpider(scrapy.Spider):
 
         # Link del Review.
         item['review_link'] = response.css('div.ignRating a.reviewLink::attr(href)').extract_first().strip()
+
+        # Links de juegos relacionados
+        item['related_games'] = response.css('div.gamesYouMayLike-name a::attr(href)').extract()
 
         # Extracción de los valores de la tabla del div "gameInfo-list":
         # release_date, MSRP, Genre, Publisher, Developer, rating_category.
