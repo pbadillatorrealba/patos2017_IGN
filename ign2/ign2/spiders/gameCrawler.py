@@ -15,6 +15,7 @@ class IGNItem(scrapy.Item):
     title = scrapy.Field()
     description = scrapy.Field()
     platforms = scrapy.Field()
+    url = scrapy.Field()
 
     # Scores
     ign_score = scrapy.Field()
@@ -86,9 +87,9 @@ class IGNSpider(scrapy.Spider):
         # Nuevo item IGN.
         item = IGNItem()
 
-        # Titulo, descripción y plataforma:
+        # Titulo, descripción, plataforma y URL:
         item['title'] = response.css('span.fn::text').extract_first().strip()
-
+        item['url'] = response.url
         item['description'] = ''
         first = True
         for text in response.css('div.gameInfo p::text').extract():
