@@ -18,7 +18,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.es.SpanishAnalyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -38,7 +38,7 @@ import org.apache.lucene.util.Version;
 public class BuildIGNIndex {
 
 	public enum FieldNames {
-		URL, TITLE, DESCRIPTION, GENRES, PLATAFORMS, IGN_SCORE, COMMUNITY_SCORE, REVIEW_URL
+		URL, TITLE, DESCRIPTION, GENRES, PLATAFORMS, IGN_SCORE, COMMUNITY_SCORE, REVIEW_URL, PUBLISHER, DEVELOPERS, RATING_CATEGORY, RELEASE_DATE, PRICE
 	}
 
 	public static int TICKS = 500;
@@ -112,8 +112,8 @@ public class BuildIGNIndex {
 	  //Open a Lucene directory over index dir
       Directory dir = FSDirectory.open(indexDir);
       
-      //Spanish analyser, a index write config with Version.LUCENE_48
-      Analyzer analizer = new SpanishAnalyzer(Version.LUCENE_48);
+      //English analyser, a index write config with Version.LUCENE_48
+      Analyzer analizer = new EnglishAnalyzer(Version.LUCENE_48);
       
       // Configures how to index will be written
       IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_48, analizer);
@@ -207,7 +207,22 @@ public class BuildIGNIndex {
             Field review_url = new TextField(FieldNames.REVIEW_URL.name(), data[16], Field.Store.YES);
             d.add(review_url);
             
-
+            // 
+            Field publisher = new TextField(FieldNames.PUBLISHER.name(), data[10], Field.Store.YES);
+            d.add(publisher);
+            
+            Field developers = new TextField(FieldNames.DEVELOPERS.name(), data[11], Field.Store.YES);
+            d.add(developers);
+            
+            Field rating_category = new TextField(FieldNames.RATING_CATEGORY.name(), data[12], Field.Store.YES);
+            d.add(rating_category);
+            
+            Field release_date = new TextField(FieldNames.RELEASE_DATE.name(), data[14], Field.Store.YES);
+            d.add(release_date);
+            
+            Field price = new TextField(FieldNames.PRICE.name(), data[15], Field.Store.YES);
+            d.add(price);
+            
             // Add the document to the writer
             writer.addDocument(d);
             

@@ -15,7 +15,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.es.SpanishAnalyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -42,7 +42,7 @@ public class SearchIGNIndex {
     BOOSTS.put(FieldNames.TITLE.name(), 5f);
   }
 
-  public static final int DOCS_PER_PAGE = 5;
+  public static final int DOCS_PER_PAGE = 8;
 
   public static void main(String args[]) throws IOException, ClassNotFoundException,
       AlreadyBoundException, InstantiationException, IllegalAccessException {
@@ -105,7 +105,7 @@ public class SearchIGNIndex {
     IndexSearcher searcher = new IndexSearcher(rd);
 
     // Use the same analyser as the build
-    Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_48);
+    Analyzer analyzer = new EnglishAnalyzer(Version.LUCENE_48);
     // Create a multi-field query parser for title and abstract
 
     MultiFieldQueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_48,
@@ -143,16 +143,11 @@ public class SearchIGNIndex {
 
             //
             if (hits.length != 0) {
-
-
               // Print number of matching documents
               System.out.println("Matching Documents: " + results.totalHits);
               // TODO
-
               int showingDocs = hits.length > 10 ? 10 : hits.length;
               System.out.println("Showing top " + showingDocs + " results:\n\n");
-
-
 
               // For each hit, get its details and print them (title, abstract, etc.)
               for (int i = 0; i < hits.length; i++) {
@@ -168,7 +163,11 @@ public class SearchIGNIndex {
                 documentMap.put("ign_score", doc.get(FieldNames.IGN_SCORE.name()));
                 documentMap.put("community_score", doc.get(FieldNames.COMMUNITY_SCORE.name()));
                 documentMap.put("review_url", doc.get(FieldNames.REVIEW_URL.name()));
-
+                documentMap.put("publisher", doc.get(FieldNames.PUBLISHER.name()));
+                documentMap.put("developers", doc.get(FieldNames.DEVELOPERS.name()));
+                documentMap.put("rating_category", doc.get(FieldNames.RATING_CATEGORY.name()));
+                documentMap.put("release_date", doc.get(FieldNames.RELEASE_DATE.name()));
+                documentMap.put("price", doc.get(FieldNames.PRICE.name()));
                 // Set document in documents storage.
                 documentsMap.put("result" + i, documentMap);
 
@@ -182,7 +181,7 @@ public class SearchIGNIndex {
 
               while (true) {
                 System.out
-                    .println("Enter the number of the desired game or 0 to return to search menu:");
+                    .println("Enter the number of the desired game to see its description or 0 to return to search menu:");
 
                 int option = -100;
 
@@ -201,20 +200,36 @@ public class SearchIGNIndex {
 
                 HashMap<String, String> selectedResult = documentsMap.get("result" + option);
 
-                System.out.println("\tTitle: " + selectedResult.get("title"));
+                System.out.println("\t----------------//\\\\----------------");
+                //System.out.println("\tTitle: " + selectedResult.get("title"));
+                System.out.println("\t" + selectedResult.get("title"));
+                
+                System.out.println("\n\t----------------Info----------------");
                 System.out.println("\tDescription: " + selectedResult.get("description"));
                 System.out.println("\tUrl: " + selectedResult.get("url"));
                 System.out.println("\tGenre: " + selectedResult.get("genre"));
-                System.out.println("\tPlataform(s): " + selectedResult.get("plataforms"));
+                System.out.println("\tPlataforms: " + selectedResult.get("plataforms"));
+                System.out.println("\tDevelopers: "+ selectedResult.get("developers"));
+                System.out.println("\tPublishers: "+ selectedResult.get("publisher"));
+                
+                
+                System.out.println("\n\t-----------Score & Review-----------");
                 System.out.println("\tIGN Score: " + selectedResult.get("ign_score"));
                 System.out.println("\tCommunity Score: " + selectedResult.get("community_score"));
                 System.out.println("\tReview URL: " + selectedResult.get("review_url"));
+                
+                System.out.println("\n\t--------Release Information---------");
+                System.out.println("\tRating Category: "+ selectedResult.get("rating_category"));
+                System.out.println("\tRelease Date: "+ selectedResult.get("release_date"));
+                System.out.println("\tPrice(s): "+ selectedResult.get("price"));
+                System.out.println("\n\t----------------\\\\//----------------\n");
+                
+                
                 System.out.println("");
               }
             } else {
               System.out.println("Matching Documents: 0");
             }
-
           } catch (Exception e) {
             System.err.println("Error with query '" + line + "'");
             e.printStackTrace();
