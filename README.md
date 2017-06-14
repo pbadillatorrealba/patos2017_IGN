@@ -86,5 +86,5 @@ Luego de esto, se debería poder interactuar con el buscador en la consola de ec
 
 ##### Age of empires:
 
-![Ejemplo 1: Age of Empires](/home/pablo/Escritorio/ProyectoPatos/patos2017_IGN/images/ejemplo.png  "Ejemplo 1: Age of Empires")
+![Ejemplo 1: Age of Empires](/images/ejemplo.png  "Ejemplo 1: Age of Empires")
 
