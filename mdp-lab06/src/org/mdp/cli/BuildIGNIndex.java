@@ -21,7 +21,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
@@ -36,13 +35,13 @@ import org.apache.lucene.util.Version;
  * 
  * @author Grupo13
  */
-public class IGNIndex {
+public class BuildIGNIndex {
 
 	public enum FieldNames {
-		URL, TITLE, MODIFIED, DESCRIPTION
+		URL, TITLE, DESCRIPTION, GENRES
 	}
 
-	public static int TICKS = 10000;
+	public static int TICKS = 100;
 
 	public static void main(String args[]) throws IOException, ClassNotFoundException, AlreadyBoundException, InstantiationException, IllegalAccessException{
 		Option inO = new Option("i", "input file");
@@ -103,12 +102,12 @@ public class IGNIndex {
 		}
 		BufferedReader br = new BufferedReader(new InputStreamReader(is,"utf-8"));
 
-		indexTitleAndAbstract(br, fDir);
+		indexTitleAndDescription(br, fDir);
 
 		br.close();
 	}
 
-	public static void indexTitleAndAbstract(BufferedReader input, File indexDir) throws IOException{
+	public static void indexTitleAndDescription(BufferedReader input, File indexDir) throws IOException{
 	  
 	  //Open a Lucene directory over index dir
       Directory dir = FSDirectory.open(indexDir);
@@ -125,78 +124,84 @@ public class IGNIndex {
       // Open a new indexwriter with given config and dir
       IndexWriter writer = new IndexWriter(dir,iwc);
       
-      String line = null;
+
+    //starting reading the input data
+      String line = input.readLine(); // Header...
+      System.err.println("Header:... " + line);
       int read = 0;
       while ((line = input.readLine()) != null){
-        read ++;
-        if (read%TICKS== 0){
-          System.err.println("... read" + read);
+        read++;
+        if (read%TICKS==0){
+          System.err.println("... read " + read);
+        }
+        //line = line.trim();
+        if (!line.isEmpty()){
+          // TODO - Cambiar este lector por un lector de csv o utilizar undefined...
+          String[] data = line.split(";"); 
+          /* Data index
+          0.  'title',
+          1.  'url',
+          2.  'description',
+          3.  'related_games',
+            
+          4.  'genres',
+          5.  'platforms',
+        
+          6.  'ign_score',
+          7.  'ign_score_phrase',
+          8.  'community_score',
+          9.  'community_score_phrase',
+            
+          10. 'publisher',
+          11. 'developers',
+          12. 'rating_category',
+          13. 'rating_content',
+            
+          14. 'release_date',
+          15. 'price',
+    
+          16. 'review_link',
+
+          */
+          // DEBUG...
+          //System.err.println("Title: "+ data[0] + "...Read: " + read + "...Array Len: " + data.length);
+          
+          // Si Title, description o URL no son vacios...
+          if (data[0].length() > 3 && !data[0].isEmpty() && !data[1].isEmpty() && !data[2].isEmpty()){  
+            Document d = new Document();
+            
+            // Note: in the following, to reference field names, 
+            // use e.g., FieldNames.URL.name() to ensure consistency.
+            
+            //index URL as a string (stored), and title as text (stored)
+            Field url = new StringField(FieldNames.URL.name(),data[1],Field.Store.YES);
+            d.add(url);
+            
+            //TODO if available, index abstract as text (stored)
+            Field title = new TextField(FieldNames.TITLE.name(), data[0], Field.Store.YES);
+            d.add(title);
+            
+            // description
+            Field text = new TextField(FieldNames.DESCRIPTION.name(), data[2], Field.Store.YES);
+            d.add(text);
+            
+            System.out.println(data[4]);
+            Field genres = new TextField(FieldNames.GENRES.name(), data[4], Field.Store.YES);
+            d.add(genres);
+            
+            // Add the document to the writer
+            writer.addDocument(d);
+            
+          }  else {
+            System.err.println("Skipping line : '"+line+"'");
+          }
         }
       }
-	  
-	  /*		
-		//starting reading the input data
-		String line = null;
-		int read = 0;
-		while((line = input.readLine())!=null){
-			read++;
-			if(read%TICKS==0){
-				System.err.println("... read "+read);
-			}
-			
-			line = line.trim();
-			
-			if(!line.isEmpty()){
-				String[] tabs = line.split("\t");
-				
-				// tabs[0] is URL, tabs[1] is title, tabs[2] is abstract
-				// some articles may not have an abstract
-				// if a line does not have at least a title, skip it
-				if(tabs.length>=2){
-					//create a Lucene document
-					Document d = new Document();
-					
-					// Note: in the following, to reference field names, 
-					// use e.g., FieldNames.URL.name() to ensure consistency.
-					
-					//index URL as a string (stored), and title as text (stored)
-					Field url = new StringField(FieldNames.URL.name(),tabs[0],Field.Store.YES);
-					d.add(url);
-					
-					
-	                //TODO if available, index abstract as text (stored)
-					Field title = new TextField(FieldNames.TITLE.name(), tabs[1], Field.Store.YES);
-					d.add(title);
-					
-					
-					// Saco un texto y le digo que no lo almacene...
-					if (tabs.length>2){
-  					  Field text = new TextField(FieldNames.ABSTRACT.name(), tabs[2], Field.Store.NO);
-  					  d.add(text);
-					}
-					
-	                //TODO also index the time the document was added (unstored)
-                    //       (System.currentTimeMilliseconds())
-					Field modified = new LongField(FieldNames.MODIFIED.name(), System.currentTimeMillis(), Field.Store.NO);
-					d.add(modified);
-					
-					//TODO add the document to the writer
-					writer.addDocument(d);
-					
-				} else{
-					System.err.println("Skipping partial line : '"+line+"'");
-				}
-				
-			}
-		}
-		
-		// Close the write and print a done message with
-		// number of lines read
-		
-		writer.close();
-		System.out.println("Number of readed lines: " + read );
-		
-	*/
-		
+      
+      // Close the write and print a done message with
+      // number of lines read
+      
+      writer.close();
+      System.out.println("Number of readed lines: " + read );
 	}
 }
