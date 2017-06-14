@@ -38,10 +38,10 @@ import org.apache.lucene.util.Version;
 public class BuildIGNIndex {
 
 	public enum FieldNames {
-		URL, TITLE, DESCRIPTION, GENRES
+		URL, TITLE, DESCRIPTION, GENRES, PLATAFORMS, IGN_SCORE, COMMUNITY_SCORE, REVIEW_URL
 	}
 
-	public static int TICKS = 100;
+	public static int TICKS = 500;
 
 	public static void main(String args[]) throws IOException, ClassNotFoundException, AlreadyBoundException, InstantiationException, IllegalAccessException{
 		Option inO = new Option("i", "input file");
@@ -134,10 +134,9 @@ public class BuildIGNIndex {
         if (read%TICKS==0){
           System.err.println("... read " + read);
         }
-        //line = line.trim();
+        line = line.trim();
         if (!line.isEmpty()){
-          // TODO - Cambiar este lector por un lector de csv o utilizar undefined...
-          String[] data = line.split(";"); 
+          String[] data = line.split("\t"); 
           /* Data index
           0.  'title',
           1.  'url',
@@ -164,8 +163,11 @@ public class BuildIGNIndex {
 
           */
           // DEBUG...
-          //System.err.println("Title: "+ data[0] + "...Read: " + read + "...Array Len: " + data.length);
           
+          //if (data[4].length() > 50){
+          //  System.out.println("Error in read " + read + " with title " + data[0] + ": " + data[4]);
+          //  System.out.println("Actual: Title-" + data[0] + "...Description: " + data[2]  + "...URL: " + data[1] );
+
           // Si Title, description o URL no son vacios...
           if (data[0].length() > 3 && !data[0].isEmpty() && !data[1].isEmpty() && !data[2].isEmpty()){  
             Document d = new Document();
@@ -177,7 +179,7 @@ public class BuildIGNIndex {
             Field url = new StringField(FieldNames.URL.name(),data[1],Field.Store.YES);
             d.add(url);
             
-            //TODO if available, index abstract as text (stored)
+            // title
             Field title = new TextField(FieldNames.TITLE.name(), data[0], Field.Store.YES);
             d.add(title);
             
@@ -185,10 +187,27 @@ public class BuildIGNIndex {
             Field text = new TextField(FieldNames.DESCRIPTION.name(), data[2], Field.Store.YES);
             d.add(text);
             
-            System.out.println(data[4]);
+            // genres
             Field genres = new TextField(FieldNames.GENRES.name(), data[4], Field.Store.YES);
             d.add(genres);
             
+            // plataforms 
+            Field plataforms = new TextField(FieldNames.PLATAFORMS.name(), data[5], Field.Store.YES);
+            d.add(plataforms);
+            
+            // ign_score
+            Field ign_score = new TextField(FieldNames.IGN_SCORE.name(), data[6], Field.Store.YES);
+            d.add(ign_score);
+            
+            // community_socre
+            Field community_score = new TextField(FieldNames.COMMUNITY_SCORE.name(), data[8], Field.Store.YES);
+            d.add(community_score);
+            
+            // review_link
+            Field review_url = new TextField(FieldNames.REVIEW_URL.name(), data[16], Field.Store.YES);
+            d.add(review_url);
+            
+
             // Add the document to the writer
             writer.addDocument(d);
             

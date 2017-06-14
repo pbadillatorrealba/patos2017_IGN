@@ -117,7 +117,7 @@ public class SearchIGNIndex {
 
     // TODO : Limpiar el codigo
     while (true) {
-      System.out.println("Enter a keyword search phrase:");
+      System.out.println("Enter a keyword search phrase or enter to close:");
 
       String line = br.readLine();
       if (line != null) {
@@ -164,6 +164,10 @@ public class SearchIGNIndex {
                 documentMap.put("url", doc.get(FieldNames.URL.name()));
                 documentMap.put("description", doc.get(FieldNames.DESCRIPTION.name()));
                 documentMap.put("genre", doc.get(FieldNames.GENRES.name()));
+                documentMap.put("plataforms", doc.get(FieldNames.PLATAFORMS.name()));
+                documentMap.put("ign_score", doc.get(FieldNames.IGN_SCORE.name()));
+                documentMap.put("community_score", doc.get(FieldNames.COMMUNITY_SCORE.name()));
+                documentMap.put("review_url", doc.get(FieldNames.REVIEW_URL.name()));
 
                 // Set document in documents storage.
                 documentsMap.put("result" + i, documentMap);
@@ -193,6 +197,7 @@ public class SearchIGNIndex {
                 if (option == -1) {
                   break;
                 }
+                // TODO Verificar si los campos son nulos para no imprimirlos...
 
                 HashMap<String, String> selectedResult = documentsMap.get("result" + option);
 
@@ -200,6 +205,10 @@ public class SearchIGNIndex {
                 System.out.println("\tDescription: " + selectedResult.get("description"));
                 System.out.println("\tUrl: " + selectedResult.get("url"));
                 System.out.println("\tGenre: " + selectedResult.get("genre"));
+                System.out.println("\tPlataform(s): " + selectedResult.get("plataforms"));
+                System.out.println("\tIGN Score: " + selectedResult.get("ign_score"));
+                System.out.println("\tCommunity Score: " + selectedResult.get("community_score"));
+                System.out.println("\tReview URL: " + selectedResult.get("review_url"));
                 System.out.println("");
               }
             } else {
@@ -210,6 +219,9 @@ public class SearchIGNIndex {
             System.err.println("Error with query '" + line + "'");
             e.printStackTrace();
           }
+          
+        } else {
+          break;
         }
       }
     }
