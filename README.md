@@ -48,10 +48,43 @@ Donde:
 1. **NOMBRE_ARCHIVO_OUTPUT** corresponde al nombre del archivo al que se quieren escribir los datos
 1. **TIPO_ARCHIVO** corresponde al tipo de archivo, json o csv
 
-### Índices
 
-En proceso.
+Para unir los datos y rellenar los datos faltantes, se usa Jupyter+Pandas en Python 3.6. (XD). 
 
-### Buscador
+Para ver el notebook que contiene este codigo, en shell ejecutar:
 
-En Proceso.
+```
+jupyter notebook
+```
+Y luego abrir el notebook join.ipynb con jupyter abierto en el navegador favorito.
+
+
+### Índices Y Buscador
+
+
+
+Se desarrollan usando lucene mas la base de datos extraida.
+
+Todo el codigo está presente en la carpeta mdp-lab06 y para ejecutarlo, se necesita importar el proyecto en eclipse.
+
+Primero se debe ejecutar la clase **BuildIGNIndex.java**, la que genera los indices con los siguientes parametros:
+
+```
+-i '/.../patos2017_IGN/resultados/all_data.csv' 
+-o '/.../patos2017_IGN/resultados/wc'
+
+/.../ : Directorio a la carpeta
+```
+Y luego se debe ejecutar **SearchIGNIndex.java** para iniciar el buscador usando los indices creados anteriormente. Los parámetros para ejecutarla son:
+
+```
+-i '/.../patos2017_IGN/resultados/wc'
+```
+Luego de esto, se debería poder interactuar con el buscador en la consola de eclipse.
+
+### Algunos Resultados:
+
+##### Age of empires:
+
+![Ejemplo 1: Age of Empires](/images/ejemplo.png  "Ejemplo 1: Age of Empires")
+
