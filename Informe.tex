@@ -1,0 +1,300 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
+\usepackage{minted}
+
+\newcommand{\instruction}[1]{\textsc{\begin{tcolorbox}#1\end{tcolorbox}}}
+
+\begin{document}
+
+\title{IGNRank}
+\author{Pablo Badilla, Carlos Contreras, Ignacio Vallejos}
+
+\maketitle
+
+% descommentar la siguiente línea para borrar los cuadros
+\renewcommand{\instruction}[1]{}
+
+\section{Goal}
+
+\instruction{State what is the main goal of the project. State what sorts of question(s) you want to answer or what sort of system you want to build. (Questions may be non-technical -- e.g., is there a global correlation between coffee consumption and research output -- so long as they require data analysis or other technical solutions.) [max.\ $\frac{1}{2}$ page]:}
+
+\medskip
+The main goal of the project is to create a game searcher for a set of games. For this, we will use, on one hand, a data-set obtained from crawling 16000 urls from the games news and reviews site \href{https://www.ign.com}{IGN}, and in the other, both \textit{TF-IDF} and \textit{page-rank} techniques to generate a search index and improve the search results respectively.
+
+\section{Data}
+
+\instruction{Describe the raw dataset that you considered for your project. Where did it come from? Why was it chosen? What information does it contain? What format was it in? What size was it? How many lines/records? [max.\ $\frac{1}{2}$ page]:}
+
+
+\medskip
+As base, was used a \textit{csv} dataset from kaggle named \href{https://www.kaggle.com/egrinstein/20-years-of-games}{20 Years of Games} which size is 585Kb and contains 18625 lines of games information, crawled from \textit{IGN}. Specifically, each game represented in a row contains the title, url, a score phrase and a numeric score given by the site, platform, release date, among others fields.
+
+% \newpage
+
+\section{Methods}
+
+\instruction{Detail the methods used during the project. Provide an overview of the techniques/technologies used, why you used them and how you used them. Refer to the source-code delivered with the project. Describe any problems you encountered. [max. 1 page]:}
+
+\medskip
+
+The develop of the project consist in three steps, which will be explained in the next sub-sections.
+
+\subsection{Crawl}
+
+The first step consisted in crawl the information starting from the original dataset described in the previous section. For this, the procedure begins by getting all the URLs from the database, what was solved using \textit{python csv} library over all the elements on the URL column of the dataset, first adding \textit{http://www.ign.com} as prefix because the URL column only contains URL suffix, and then, separating the set in 36 chunks with a approximate equal number of URLs.
+Afterwards, all URLs in the files was crawled, using  \textit{Python Scrapy} library through a spider developed by us, which uses \textit{CCS path} over the page structure to extract the desired data. Data Structure can be seen in Figure 2 and a example of crawler can be seen in Figure 3.
+
+\subsection{Search Engine}
+
+The second step consisted in implementing the search engine from the crawled data. For such purposes, it was adapted the sixth laboratory's course (\textit{Apache Lucene} implementation of inverted index tf-idf) by adding to the index builder class all fields crawled in the last step and creating a console user interface for the search, which takes a query and responses with the top 8 results and their details.
+
+\subsection{PageRank}
+
+ From the data obtained in the crawler, we obtained the links that are referenced from each page. Then, a class called \textit{Transformer} is created, which takes the obtained data from the \textit{.csv} file and delivers a \textit{.txt} file, where the page and the reference are separated at the tab character
+
+Then the file is passed as an argument to the \textit{CompressRankSortDescompress} class, which encodes the links and performs the process to get the rank of the pages.
+
+Finally, the ranking of the pages is included in the search process, to have influence on it, through the \empth{BoostRanks} class.
+
+\subsection{Problems}
+
+The first part showed several disadvantages and probably, it was the most difficult part of the project. It was because in one side, some pages didn't have all the desired data or it was in different places around the page structure, or in different order, it took a huge amount of time to crawl all files, due to the 14 seconds delay for each request to avoid a ban by DOS.\\
+
+\newpage
+
+
+\section{Results}
+
+\instruction{Detail the results of the project. Different projects will have different types of results; e.g., run-times or result sizes, evaluation of the methods you're comparing, the interface of the system you've built, and/or some of the results of the data analysis you conducted. [max. 1 page]}
+
+\medskip
+% TODO
+
+A example of the crawler application can be seen in Figure 2 on appendix section.
+
+Then, according to the \textit{Pagerank} algorithm, this are some of the game rankings:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+         \hline
+         Rating Number&Game&Plataform&PageRank  \\ \hline
+         1&The Legend of Zelda: Ocarina of Time & Wii & 0.02155945528 \\ 
+         2&The Legend of Zelda: Skyward Sword & Wii & 0.02155945528 \\ 
+         3&God of War II & PS2 & 0.01664666 \\
+         45& Skyrim Dragonborn& Ps3&0.00361112219673596\\
+         202&Star Wars Battlefront II& PS2& 4.443731478018337E-4 \\
+         2689&Beat Drop&xbox 360&         1.8160397352158578E-5\\
+         17780&Zumba Fitness World Party&xbox one&	1.8160397352158578E-5
+         \\         
+         \hline
+    \end{tabular}
+    \caption{Some PageRank Results}
+    \label{tab:conv_cmp}
+\end{table}{}
+
+Using the previous results , the next table shows some results obtained from the search engine, with and without \textit{Pagerank} optimization:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+         \hline
+         
+         Query&Game&Pagerank Position&Raw Position\\ \hline
+         Zelda&The Legend of Zelda: Ocarina of Time&1&5\\
+         &The Legend of Zelda: Skyward Sword&2&6\\
+         &The Legend of Zelda: Twilight Princess&3&-\\
+         &The Legend of Zelda: The Wind Waker&4&-\\
+         \hline
+         Call of Duty&Call of Duty: Modern Warfare 3&1&-\\
+         &Call of Duty: Black Ops&3&-\\
+         &Call of Duty&5&1\\
+         &Call of Duty: Ghosts&7&2,3,4,5,6,7\\\hline
+         Pokemon&Pokemon Conquest&1&7\\
+         &Pokemon Ruby Version&2&-\\
+         &Pokemon FireRed Version&3&-\\
+         &Pokemon Emerald Version&4&-\\
+         &Pokemon Ranger&-&1\\
+         &Pokemon Colosseum&-&2\\
+         \hline
+    \end{tabular}
+    \caption{Search without/with PageRank, ordered by PageRank position}
+    \label{tab:conv_cmp}
+\end{table}{}
+
+
+\newpage
+
+\section{Conclusion}
+In the making of the project we learned that, although Crawling pages takes a lot of time, it's worth doing because you get the desired information in a more handy form that allows an easily operation.\\
+
+Regarding the creation of the searcher, the incorporation of page rank as a way to improve search results provided by the Inverted Index allowed the searcher to show better results, favoring the more popular games over the less popular ones.\\ 
+
+And last but not least that mass data processing is not an easy discipline, but it is really useful in today's society.
+
+\instruction{Summarise main lessons learnt. What was easy? What was difficult? What could have been done better or more efficiently? [max. $\frac{1}{2}$ page]}
+
+% TODO
+
+
+\newpage
+\section*{Appendix}
+
+\instruction{(\textit{Optional}) You can use this for key code snippets that are too big to fit in the main text. Just list your code here as in Figure~\ref{f:tcode} and refer to it from the main text. The appendix can be as long as you need; however, please only list code that is important for the report. There is no need to copy all your source code here since it is delivered elsewhere.}
+
+
+\begin{figure}[h]
+\begin{minted}{python}
+class IGNItem(scrapy.Item):
+    # Campos Generales : Titulo, descripción y Plataformas.
+    title = scrapy.Field()
+    description = scrapy.Field()
+    platforms = scrapy.Field()
+    url = scrapy.Field()
+    # Scores
+    ign_score = scrapy.Field()
+    ign_score_phrase = scrapy.Field()
+    community_score = scrapy.Field()
+    community_score_phrase = scrapy.Field()
+    review_link = scrapy.Field()
+    # Datos del desarrollador y del desarollo del juego.
+    release_date = scrapy.Field()
+    price = scrapy.Field()
+    genres = scrapy.Field()
+    publisher = scrapy.Field()
+    developers = scrapy.Field()
+    rating_category = scrapy.Field()
+    rating_content = scrapy.Field()
+    # Juegos relacionados
+    related_games = scrapy.Field()
+\end{minted}
+\caption{Crawled Data Structure}
+\label{f:tcode}
+\end{figure}
+
+\begin{figure}[h]
+\begin{minted}{js}
+{'community_score': '9.0',
+ 'community_score_phrase': 'Amazing',
+ 'description': 'Wage war with the most powerful heroes from Blizzard '
+                "Entertainment's game universes in the explosive multiplayer "
+                'game Heroes of the Storm, based on the classic and hugely '
+                'influential Defense of the Ancients game MOD. Heroes of the '
+                'Storm is a team-based competitive game in which each player '
+                'controls a powerful hero with unique abilities, and works '
+                "with his or her team to invade and destroy the enemy team's "
+                'base.\n'
+                '\n'
+                'Over the course of a match, waves of computer-controlled '
+                'creatures for each team advance automatically across the map '
+                'along different pathways. Players fight alongside these '
+                'creatures to advance the battlefront, destroy enemy towers, '
+                'and eventually push into the enemy base. Other points of '
+                'interest are guarded by neutral hostile creatures; capturing '
+                'and controlling these points grants bonuses to your team. As '
+                'your team kills computer-controlled creatures and other '
+                'players, your hero will gain experience and levels to '
+                "strengthen his or her special abilities. You'll also earn "
+                'gold which you can use to purchase upgrades and items to '
+                'customize and improve your hero over the course of a match.',
+ 'developers': 'Blizzard Entertainment',
+ 'genres': 'Real-Time, Strategy',
+ 'ign_score': '6.5',
+ 'ign_score_phrase': 'Okay',
+ 'platforms': 'Mac PC',
+ 'publisher': 'Blizzard Entertainment',
+ 'rating_category': 'T for Teen',
+ 'rating_content': 'Crude Humor, Fantasy Violence, Mild Blood, Mild Language, '
+                   'Mild Suggestive Themes, Includes online features that may '
+                   'expose players to unrated user-generated content',
+ 'related_games': ['http://www.ign.com/games/prison-architect/mac-145353',
+                   'http://www.ign.com/games/xcom-2/mac-20038028',
+                   'http://www.ign.com/games/warhammer-40k-dawn-of-war-3/mac-20069059',
+                   'http://www.ign.com/games/divinity-original-sin-enhanced-edition/mac-20037340',
+                   'http://www.ign.com/games/divinity-original-sin/mac-135173',
+                   'http://www.ign.com/games/elder-scrolls-online/mac-133733'],
+ 'release_date': 'June 2, 2015',
+ 'review_link': 'http://www.ign.com/articles/2015/06/02/heroes-of-the-storm-review',
+ 'title': 'Heroes of the Storm',
+ 'url': 'http://www.ign.com/games/heroes-of-the-storm/mac-120622'}
+
+\end{minted}
+\caption{Example of crawled page}
+\end{figure}
+
+
+\begin{figure}[h]
+\begin{verbatim}
+        item['title'] = response.css('span.fn::text').extract_first().strip()
+        item['url'] = response.url
+        item['description'] = ''
+        first = True
+        for text in response.css('div.gameInfo p::text').extract():
+            if text.strip() == '':  # Caso base: No queda mas texto.
+                item['description'] += text.strip().replace(u"\u2019", "'")
+            elif first:  # Primer Parrafo.
+                item['description'] += text.strip().replace(u"\u2019", "'")
+                first = False
+            else:  # Parrafo Cualquiera. (Agrega salto de linea).
+                item['description'] += '\n\n' + text.strip().replace(u"\u2019", "'")
+
+        item['platforms'] = ''
+        first = True
+        for platform in response.css('div.contentPlatformsText a::text').extract():
+            if first:  # Primera plataforma.
+                item['platforms'] += platform.strip()
+                first = False
+            else:  # Plataforma cualquiera, agrego 2 espacios
+                item['platforms'] += ' ' + platform.strip()
+
+        ...
+\end{verbatim}
+\caption{Data Crawl Example}
+\label{f:tcode}
+\end{figure}
+
+
+\begin{figure}[h]
+\begin{verbatim}
+   //starting reading the input data
+      String line = input.readLine(); // Header...
+      System.err.println("Header:... " + line);
+      int read = 0;
+      while ((line = input.readLine()) != null){
+        read++;
+        if (read%TICKS==0){
+          System.err.println("... read " + read);
+        }
+        line = line.trim();
+        if (!line.isEmpty()){
+          String[] data = line.split("\t"); 
+          // Si Title, description o URL no son vacios...
+          if (data[0].length() > 3 && !data[0].isEmpty() && !data[1].isEmpty() && !data[2].isEmpty()){  
+            Document d = new Document();
+            //index URL as a string (stored), and title as text (stored)
+            Field url = new StringField(FieldNames.URL.name(),data[1],Field.Store.YES);
+            d.add(url);
+            // title
+            Field title = new TextField(FieldNames.TITLE.name(), data[0], Field.Store.YES);
+            d.add(title);
+            // description
+            Field text = new TextField(FieldNames.DESCRIPTION.name(), data[2], Field.Store.YES);
+            d.add(text);
+            // genres
+            Field genres = new TextField(FieldNames.GENRES.name(), data[4], Field.Store.YES);
+            d.add(genres);
+            ...
+            Field price = new TextField(FieldNames.PRICE.name(), data[15], Field.Store.YES);
+            d.add(price);
+            
+            // Add the document to the writer
+            writer.addDocument(d);
+\end{verbatim}
+\caption{Data Indexing Example}
+\label{f:tcode}
+\end{figure}
+
+
+\end{document}
